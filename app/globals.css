@@ -1,0 +1,261 @@
+:root {
+  color-scheme: light dark;
+  --bg: #fff;
+  --fg: #16161a;
+  --muted: #6b6b76;
+  --line: #e3e3e8;
+  --accent: #2b6cff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131316;
+    --fg: #ececf1;
+    --muted: #9a9aa5;
+    --line: #2c2c33;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand { font-size: 17px; font-weight: 700; }
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 96px;
+}
+
+h2 { font-size: 18px; margin: 0 0 16px; }
+
+button, .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  padding: 7px 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+button:disabled { opacity: .5; cursor: default; }
+
+button.primary {
+  width: 100%;
+  justify-content: center;
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+  padding: 11px;
+}
+
+input[type='text'], input[type='email'], input:not([type]) {
+  font: inherit;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.error { color: #d93025; white-space: pre-line; }
+.notice { color: var(--muted); }
+
+/* 로그인 */
+.login { max-width: 320px; padding-top: 16vh; text-align: center; }
+.login h1 { font-size: 20px; }
+.login form { display: grid; gap: 8px; margin-top: 20px; }
+
+/* 목록 - CSS 다단으로 세로 길이가 제각각인 이미지를 벽돌처럼 쌓는다.
+   grid 로 하면 같은 행의 가장 높은 카드에 맞춰 빈칸이 생긴다. */
+.grid {
+  columns: 2;
+  column-gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card {
+  position: relative;
+  break-inside: avoid;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+/* 크롭하지 않는다 - 원본 비율 그대로 */
+.card img { display: block; width: 100%; height: auto; }
+
+.actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.card:hover .actions,
+.card:focus-within .actions { opacity: 1; }
+
+/* 터치 기기에는 호버가 없으니 항상 보여준다 */
+@media (hover: none) {
+  .actions { opacity: 1; }
+}
+
+.actions button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  backdrop-filter: blur(2px);
+}
+
+.actions button:hover { background: rgba(0, 0, 0, .75); }
+
+.toast {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .8);
+  color: #fff;
+  font-size: 12px;
+}
+
+.sentinel {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* 업로드 플로팅 버튼 */
+.fab {
+  position: fixed;
+  right: max(20px, calc(50vw - 344px));
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .25);
+}
+
+/* 업로드 / 태깅 */
+.picker { display: block; margin-bottom: 20px; }
+.picker input { display: none; }
+
+.picker span {
+  display: block;
+  padding: 24px;
+  border: 1.5px dashed var(--line);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.draft {
+  margin-bottom: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* 이미지는 크롭 없이 상단에 */
+.preview {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  background: var(--line);
+}
+
+.fields { display: grid; gap: 12px; padding: 14px; }
+
+.field { display: grid; gap: 4px; }
+.field > span { font-size: 12px; color: var(--muted); }
+
+fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+legend { color: var(--muted); font-size: 12px; padding: 0 4px; }
+fieldset label { display: flex; align-items: center; gap: 4px; font-size: 14px; }
+
+.tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.tag-input input {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  padding: 2px;
+}
+
+.tag-input input:focus { outline: none; }
+
+.chip {
+  padding: 3px 8px;
+  font-size: 13px;
+  border-radius: 999px;
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+}
+
+.tag-input input:disabled { background: transparent; cursor: not-allowed; }
