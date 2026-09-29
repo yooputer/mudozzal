@@ -1,42 +1,5 @@
--- Supabase SQL Editor 에서 실행.
+-- 복사/다운로드 로그 + 같은 사람은 짤당 24시간에 한 번만 카운트. migrate-003 다음에 실행.
 
-create table zzals (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references auth.users(id) on delete cascade,
-  path       text not null,                    -- R2 object key
-  mime       text not null,
-  members    text[] not null default '{}',
-  caption    text not null default '',
-  moods      text[] not null default '{}',
-  uses       integer not null default 0,       -- 복사 + 다운로드 횟수
-  created_at timestamptz not null default now()
-);
-
-create index zzals_created on zzals (created_at desc);
-create index zzals_uses on zzals (uses desc, created_at desc);
-
-alter table zzals enable row level security;
-
--- 짤 목록은 로그인 없이 볼 수 있다.
-create policy "anyone reads" on zzals
-  for select
-  using (true);
-
--- 쓰기는 본인 것만.
-create policy "own inserts" on zzals
-  for insert
-  with check (auth.uid() = user_id);
-
-create policy "own updates" on zzals
-  for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-create policy "own deletes" on zzals
-  for delete
-  using (auth.uid() = user_id);
-
--- 복사/다운로드 로그. 남의 짤 카운트도 올려야 하므로 log_use 함수로만 쓴다.
 create table zzal_uses (
   id         bigint generated always as identity primary key,
   zzal_id    uuid not null references zzals(id) on delete cascade,
@@ -50,6 +13,8 @@ create index zzal_uses_recent on zzal_uses (zzal_id, created_at desc);
 
 -- 정책 없음 = API 로는 읽기/쓰기 불가. 아래 함수만 쓸 수 있고, 조회는 대시보드에서.
 alter table zzal_uses enable row level security;
+
+drop function bump_uses(uuid);
 
 -- 로그는 매번 남기고, uses 는 같은 사람(계정 또는 브라우저)의 최근 24시간 기록이 없을 때만 올린다.
 -- ponytail: 동시에 두 번 누르면 둘 다 카운트될 수 있다. 문제되면 advisory lock.
@@ -68,10 +33,4 @@ begin
   insert into zzal_uses (zzal_id, user_id, visitor, action)
   values (p_zzal_id, auth.uid(), p_visitor, p_action);
 end;
-$$;
-
--- 필터에 띄울 상황/감정 태그 목록
-create function mood_tags() returns setof text
-language sql stable as $$
-  select distinct unnest(moods) from zzals order by 1;
 $$;

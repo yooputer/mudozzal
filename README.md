@@ -10,6 +10,8 @@ Next.js (App Router) + TS / Supabase (인증 + 메타데이터) / Cloudflare R2 
 1. 프로젝트 생성
 2. SQL Editor 에서 `supabase/schema.sql` 실행
    - 이미 테이블이 있다면 `supabase/migrate-002.sql` 만 실행 (moods 복수화 + 비로그인 조회 허용)
+   - 그 다음 `supabase/migrate-003.sql` 실행 (복사/다운로드 횟수 + 태그 목록 함수)
+   - 그 다음 `supabase/migrate-004.sql` 실행 (복사/다운로드 로그, 24시간 중복 카운트 방지)
 3. Authentication → URL Configuration → Redirect URLs 에 `http://localhost:3000` 과 배포 도메인 추가
 4. Settings → API 에서 Project URL / anon key 복사
 
@@ -60,5 +62,4 @@ Vercel 을 경유하는 건 사용자가 버튼을 누른 순간의 바이트뿐
 - 업로드 후 Supabase insert 가 실패하면 R2 에 고아 객체가 남는다. 쌓이면 R2 lifecycle rule 로 청소.
 - 용량 제한 10MB 는 클라이언트에서만 검사. 혼자 쓰는 동안은 충분.
 - 삭제 기능 없음.
-- 검색 / 태그 필터 없음. 태그는 저장되고 있으니 UI 만 붙이면 된다.
 - 목록은 `zzals` 테이블 전체 공개 읽기다. 남의 짤도 다 보인다 (의도된 동작).

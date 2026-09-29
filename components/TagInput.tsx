@@ -17,7 +17,8 @@ export function TagInput({
 
   function add() {
     // maxLength 는 IME 조합 중에는 적용되지 않으므로 여기서 한 번 더 자른다.
-    const value = text.trim().slice(0, MAX_TAG_LENGTH)
+    // 쉼표는 목록 URL 에서 태그 구분자로 쓰므로 뺀다 (붙여넣기로 들어올 수 있다).
+    const value = text.replace(/,/g, '').trim().slice(0, MAX_TAG_LENGTH)
     setText('')
     if (!value || full || values.includes(value)) return
     onChange([...values, value])
