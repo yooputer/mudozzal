@@ -94,19 +94,19 @@ input[type='text'], input[type='email'], input:not([type]) {
 .login h1 { font-size: 20px; }
 .login form { display: grid; gap: 8px; margin-top: 20px; }
 
-/* 목록 - CSS 다단으로 세로 길이가 제각각인 이미지를 벽돌처럼 쌓는다.
-   grid 로 하면 같은 행의 가장 높은 카드에 맞춰 빈칸이 생긴다. */
+/* 목록 - 두 칸에 세로 길이가 제각각인 이미지를 벽돌처럼 쌓는다.
+   grid 행으로 하면 같은 행의 가장 높은 카드에 맞춰 빈칸이 생긴다. */
 .grid {
-  columns: 2;
-  column-gap: 12px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
 }
+
+.grid ul { list-style: none; padding: 0; margin: 0; min-width: 0; }
 
 .card {
   position: relative;
-  break-inside: avoid;
   margin-bottom: 12px;
   border-radius: 12px;
   overflow: hidden;

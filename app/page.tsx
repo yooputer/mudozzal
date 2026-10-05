@@ -189,7 +189,10 @@ function Toggles({ label, options, selected, onToggle, max = Infinity }: {
 }
 
 function Feed({ query }: { query: Query }) {
-  const [zzals, setZzals] = useState<Zzal[]>([])
+  // CSS columns 는 항목이 늘 때마다 전체를 다시 나눠서 이미 본 짤이 옆 칸으로 옮겨간다.
+  // 그래서 칸을 직접 나누고, 한 번 들어간 칸은 바꾸지 않는다.
+  const [cols, setCols] = useState<Zzal[][]>([[], []])
+  const colEls = useRef<(HTMLUListElement | null)[]>([])
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
 
@@ -205,7 +208,18 @@ function Feed({ query }: { query: Query }) {
     try {
       const batch = await listZzals(page.current, query)
       page.current += 1
-      setZzals(prev => [...prev, ...batch])
+      // 짧은 칸부터 채운다. 아직 안 그려진 새 짤은 높이를 모르니 정사각형으로 친다.
+      const heights = colEls.current.map(el => el?.offsetHeight ?? 0)
+      const width = colEls.current[0]?.offsetWidth ?? 1
+      setCols(prev => {
+        const next = prev.map(c => [...c])
+        for (const zzal of batch) {
+          const i = heights[0] <= heights[1] ? 0 : 1
+          next[i].push(zzal)
+          heights[i] += width
+        }
+        return next
+      })
       if (batch.length < PAGE_SIZE) setDone(true)
     } catch (e) {
       setError((e as Error).message)
@@ -234,13 +248,17 @@ function Feed({ query }: { query: Query }) {
   return (
     <>
       {error && <p className="error">{error}</p>}
-      <ul className="grid">
-        {zzals.map(zzal => (
-          <Card key={zzal.id} zzal={zzal} />
+      <div className="grid">
+        {cols.map((col, i) => (
+          <ul key={i} ref={el => { colEls.current[i] = el }}>
+            {col.map(zzal => (
+              <Card key={zzal.id} zzal={zzal} />
+            ))}
+          </ul>
         ))}
-      </ul>
+      </div>
       <div ref={sentinel} className="sentinel">
-        {done && zzals.length === 0 && '조건에 맞는 짤이 없습니다'}
+        {done && cols[0].length === 0 && '조건에 맞는 짤이 없습니다'}
       </div>
     </>
   )
