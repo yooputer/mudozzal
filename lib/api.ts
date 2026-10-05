@@ -31,13 +31,16 @@ export type Query = {
   members: string[]
   moods: string[]
   sort: Sort
+  /** 관리자 컨펌 대기 중인 짤만 */
+  unconfirmed?: boolean
 }
 
 // Postgres 배열 리터럴. 태그에 쉼표나 따옴표가 들어가도 깨지지 않게 원소마다 따옴표로 감싼다.
 const pgArray = (values: string[]) => `{${values.map(v => JSON.stringify(v)).join(',')}}`
 
-export async function listZzals(page: number, q: Query): Promise<Zzal[]> {
-  const from = page * PAGE_SIZE
+/** shift: 이미 받은 행 중 조건에서 빠진 수. 그만큼 당겨야 다음 페이지에서 건너뛰는 행이 없다. */
+export async function listZzals(page: number, q: Query, shift = 0): Promise<Zzal[]> {
+  const from = page * PAGE_SIZE - shift
   let req = supabase.from('zzals').select(COLUMNS)
 
   // LIKE 와일드카드를 글자 그대로 찾도록 이스케이프
@@ -46,6 +49,7 @@ export async function listZzals(page: number, q: Query): Promise<Zzal[]> {
   // 같은 그룹 안에서는 하나라도 맞으면(OR), 그룹끼리는 모두 맞아야(AND)
   if (q.members.length) req = req.overlaps('members', pgArray(q.members))
   if (q.moods.length) req = req.overlaps('moods', pgArray(q.moods))
+  if (q.unconfirmed) req = req.eq('confirmed', false)
 
   if (q.sort === 'popular') req = req.order('uses', { ascending: false })
   // id 는 created_at 이 같은 행끼리 페이지 경계에서 순서가 뒤바뀌지 않게 하는 타이브레이커
@@ -129,4 +133,18 @@ export async function uploadZzal(draft: Draft) {
     moods: draft.moods,
   })
   if (error) throw error
+}
+
+/** 화면을 가릴지 정하는 용도일 뿐, 실제 권한은 DB 정책(is_admin)이 막는다. */
+export async function isAdmin(): Promise<boolean> {
+  const { data, error } = await supabase.rpc('is_admin')
+  if (error) throw error
+  return data as boolean
+}
+
+export async function confirmZzal(id: string, patch: Pick<Zzal, 'members' | 'caption' | 'moods'>) {
+  // 정책에 막힌 update 는 오류 없이 0행을 바꾼다. 돌려받은 행으로 성공을 확인한다.
+  const { data, error } = await supabase.from('zzals').update({ ...patch, confirmed: true }).eq('id', id).select('id')
+  if (error) throw error
+  if (!data.length) throw new Error('수정 권한이 없습니다')
 }

@@ -9,6 +9,7 @@ create table zzals (
   caption    text not null default '',
   moods      text[] not null default '{}',
   uses       integer not null default 0,       -- 복사 + 다운로드 횟수
+  confirmed  boolean not null default false,   -- 관리자가 내용을 확인했는지
   created_at timestamptz not null default now()
 );
 
@@ -75,3 +76,20 @@ create function mood_tags() returns setof text
 language sql stable as $$
   select distinct unnest(moods) from zzals order by 1;
 $$;
+
+-- 관리자: 남의 짤도 수정할 수 있다.
+-- 정책 없음 = API 로는 읽기/쓰기 불가. 관리자 추가는 대시보드에서.
+create table admins (
+  user_id uuid primary key references auth.users(id) on delete cascade
+);
+alter table admins enable row level security;
+
+create function is_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from admins where user_id = auth.uid());
+$$;
+
+create policy "admin updates" on zzals
+  for update
+  using (is_admin())
+  with check (is_admin());
