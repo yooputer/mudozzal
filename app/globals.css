@@ -94,6 +94,31 @@ input[type='text'], input[type='email'], input:not([type]) {
 .login h1 { font-size: 20px; }
 .login form { display: grid; gap: 8px; margin-top: 20px; }
 
+/* Google 브랜드 가이드: 흰 배경 + 회색 테두리 + 컬러 G 로고 */
+button.google {
+  width: 100%;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 11px;
+  border-color: #dadce0;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f1f1f;
+  font-weight: 500;
+  transition: background .15s, box-shadow .15s;
+}
+button.google:hover { background: #f8f9fa; box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+
+.user { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.user span {
+  color: var(--muted);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* 목록 - 두 칸에 세로 길이가 제각각인 이미지를 벽돌처럼 쌓는다.
    grid 행으로 하면 같은 행의 가장 높은 카드에 맞춰 빈칸이 생긴다. */
 .grid {

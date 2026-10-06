@@ -12,7 +12,9 @@ Next.js (App Router) + TS / Supabase (인증 + 메타데이터) / Cloudflare R2 
    - 이미 테이블이 있다면 `supabase/migrate-002.sql` 만 실행 (moods 복수화 + 비로그인 조회 허용)
    - 그 다음 `supabase/migrate-003.sql` 실행 (복사/다운로드 횟수 + 태그 목록 함수)
    - 그 다음 `supabase/migrate-004.sql` 실행 (복사/다운로드 로그, 24시간 중복 카운트 방지)
-3. Authentication → URL Configuration → Redirect URLs 에 `http://localhost:3000` 과 배포 도메인 추가
+3. Authentication → URL Configuration → Redirect URLs 에 `http://localhost:3000/**` 과 `https://<배포도메인>/**` 추가
+   (로그인 후 원래 페이지로 돌아오므로 `/**` 필요)
+3-1. Google 로그인: Google Cloud Console 에서 OAuth 클라이언트(웹) 생성 → 승인된 리디렉션 URI 에 `https://<project-ref>.supabase.co/auth/v1/callback` → Client ID/Secret 을 Supabase Authentication → Providers → Google 에 입력
 4. Settings → API 에서 Project URL / anon key 복사
 
 ### 2. Cloudflare R2

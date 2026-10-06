@@ -11,7 +11,10 @@ export function Header() {
     <header>
       <Link href="/" className="brand">무한도전 짤 저장소</Link>
       {session === undefined ? null : session ? (
-        <button onClick={() => supabase.auth.signOut()}>로그아웃</button>
+        <div className="user">
+          <span>{session.user.email}</span>
+          <button onClick={() => supabase.auth.signOut()}>로그아웃</button>
+        </div>
       ) : (
         <Link href="/login" className="button">로그인</Link>
       )}
